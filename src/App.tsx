@@ -563,12 +563,6 @@ function App() {
                 />
               </label>
             </div>
-            <p className="warning">
-              The PDF contradicts itself about severity. Default: 1 is most
-              severe, matching its dataset note and the lower Safety scores.
-              Confirm with BMW; the selector tests the other interpretation.
-              Priority severity is a user rule, not a statistical outlier.
-            </p>
           </section>
           <div className="metrics">
             <Metric
