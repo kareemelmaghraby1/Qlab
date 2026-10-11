@@ -304,10 +304,34 @@ export const DurationChart = memo(function DurationChart({
   reworkLimit: number | null;
   onSelect: (id: string) => void;
 }) {
-  const [onlyOutliers, setOnlyOutliers] = useState(false);
-  const points = useMemo(() => durationPoints(rows, outlierIds), [rows, outlierIds]);
-  const normal = useMemo(() => points.filter((point) => !point.unusual), [points]);
-  const unusual = useMemo(() => points.filter((point) => point.unusual), [points]);
+  const [onlyOutliers, setOnlyOutliers] = useState(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 500;
+  const points = useMemo(
+    () => durationPoints(rows, outlierIds),
+    [rows, outlierIds],
+  );
+  const normal = useMemo(
+    () => points.filter((point) => !point.unusual),
+    [points],
+  );
+  const unusual = useMemo(
+    () => points.filter((point) => point.unusual),
+    [points],
+  );
+  const matching = onlyOutliers ? unusual : points;
+  const pages = Math.max(1, Math.ceil(matching.length / pageSize));
+  const currentPage = Math.min(page, pages);
+  const start = (currentPage - 1) * pageSize;
+  const visible = matching.slice(start, start + pageSize);
+  // Fixed scales make pages comparable; pagination only changes the dots.
+  const ranges = useMemo(
+    () => ({
+      resolution: Math.max(1, ...points.map((point) => point.resolutionHours)),
+      rework: Math.max(1, ...points.map((point) => point.reworkMinutes)),
+    }),
+    [points],
+  );
   const openPoint = (entry: any) => onSelect(entry.id ?? entry.payload?.id);
   return (
     <section className="panel">
@@ -315,17 +339,45 @@ export const DurationChart = memo(function DurationChart({
       <p className="muted">
         Each dot is one resolved report with both valid durations. Blue: other
         reports ({normal.length.toLocaleString("en-GB")}). Red: duration
-        outliers ({unusual.length.toLocaleString("en-GB")}). Points can overlap;
-        click one to inspect and flag it.
+        outliers ({unusual.length.toLocaleString("en-GB")}). The chart opens
+        with outliers only and draws at most 500 reports per page. Points follow
+        the source record order and can overlap; click one to inspect and flag
+        it.
       </p>
       <label className="check">
         <input
           type="checkbox"
           checked={onlyOutliers}
-          onChange={(event) => setOnlyOutliers(event.target.checked)}
+          onChange={(event) => {
+            setOnlyOutliers(event.target.checked);
+            setPage(1);
+          }}
         />{" "}
         Show only duration outliers
       </label>
+      <div className="pagination">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setPage(currentPage - 1)}
+        >
+          Previous chart page
+        </button>
+        <span>
+          Page {currentPage} of {pages}
+        </span>
+        <button
+          disabled={currentPage === pages}
+          onClick={() => setPage(currentPage + 1)}
+        >
+          Next chart page
+        </button>
+      </div>
+      {!matching.length && (
+        <p>
+          No duration outliers at this sensitivity. Uncheck the box to view
+          other completed reports.
+        </p>
+      )}
       <ResponsiveContainer width="100%" height={360}>
         <ScatterChart margin={{ left: 40, right: 15, top: 15, bottom: 25 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -334,6 +386,7 @@ export const DurationChart = memo(function DurationChart({
             dataKey="resolutionHours"
             name="Resolution time"
             unit=" h"
+            domain={[0, ranges.resolution]}
             stroke="#cbd5e1"
             label={{
               value: "Resolution time (hours)",
@@ -346,6 +399,7 @@ export const DurationChart = memo(function DurationChart({
             type="number"
             dataKey="reworkMinutes"
             name="Hands-on rework"
+            domain={[0, ranges.rework]}
             width={45}
             stroke="#cbd5e1"
             label={{
@@ -374,7 +428,7 @@ export const DurationChart = memo(function DurationChart({
           {!onlyOutliers && (
             <Scatter
               name="Other completed reports"
-              data={normal}
+              data={visible.filter((point) => !point.unusual)}
               fill="#38bdf8"
               fillOpacity={0.35}
               isAnimationActive={false}
@@ -384,7 +438,7 @@ export const DurationChart = memo(function DurationChart({
           )}
           <Scatter
             name="Duration outliers"
-            data={unusual}
+            data={visible.filter((point) => point.unusual)}
             fill="#f87171"
             isAnimationActive={false}
             onClick={openPoint}
@@ -393,13 +447,12 @@ export const DurationChart = memo(function DurationChart({
         </ScatterChart>
       </ResponsiveContainer>
       <p className="muted">
-        Showing{" "}
-        {(onlyOutliers ? unusual.length : points.length).toLocaleString(
-          "en-GB",
-        )}{" "}
-        of {points.length.toLocaleString("en-GB")} eligible reports. Dashed
-        lines show the current duration limits. This plot shows associations; it
-        does not prove causes or measure waiting time.
+        Showing reports {matching.length ? start + 1 : 0}–
+        {start + visible.length} of {matching.length.toLocaleString("en-GB")}{" "}
+        matching reports ({points.length.toLocaleString("en-GB")} eligible in
+        total). All eligible reports remain accessible through the checkbox and
+        pages. Dashed lines show the current duration limits. This plot shows
+        associations; it does not prove causes or measure waiting time.
       </p>
     </section>
   );
