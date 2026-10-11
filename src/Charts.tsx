@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -290,7 +290,8 @@ function DurationTooltip({
   );
 }
 
-export function DurationChart({
+// Flagging or editing a note does not change chart data. Reuse the chart then.
+export const DurationChart = memo(function DurationChart({
   rows,
   outlierIds,
   resolutionLimit,
@@ -304,9 +305,9 @@ export function DurationChart({
   onSelect: (id: string) => void;
 }) {
   const [onlyOutliers, setOnlyOutliers] = useState(false);
-  const points = durationPoints(rows, outlierIds);
-  const normal = points.filter((point) => !point.unusual);
-  const unusual = points.filter((point) => point.unusual);
+  const points = useMemo(() => durationPoints(rows, outlierIds), [rows, outlierIds]);
+  const normal = useMemo(() => points.filter((point) => !point.unusual), [points]);
+  const unusual = useMemo(() => points.filter((point) => point.unusual), [points]);
   const openPoint = (entry: any) => onSelect(entry.id ?? entry.payload?.id);
   return (
     <section className="panel">
@@ -402,4 +403,4 @@ export function DurationChart({
       </p>
     </section>
   );
-}
+});

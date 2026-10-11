@@ -199,6 +199,10 @@ function App() {
   }, [tracking]);
 
   const analysis = useMemo(() => analyzeOutliers(records, factor), [factor]);
+  const durationOutlierIds = useMemo(
+    () => new Set(analysis.durationReasons.keys()),
+    [analysis],
+  );
   const totals = useMemo(
     () => summarize(records, productionPerDay),
     [productionPerDay],
@@ -214,6 +218,8 @@ function App() {
   );
 
   const tableRows = useMemo(() => {
+    // Search and sort the full table only while its tab is visible.
+    if (tab !== "data") return [];
     const rows = records.filter((row) => {
       const searchable = {
         ...row,
@@ -230,7 +236,7 @@ function App() {
       );
     });
     return sortRows(rows, sort.key, sort.direction);
-  }, [search, filters, onlyOutliers, onlyRepeats, analysis, sort, tracking]);
+  }, [tab, search, filters, onlyOutliers, onlyRepeats, analysis, sort, tracking]);
 
   const trackedRows = flagged
     .filter(
@@ -997,7 +1003,7 @@ function App() {
           />
           <DurationChart
             rows={records}
-            outlierIds={new Set(analysis.durationReasons.keys())}
+            outlierIds={durationOutlierIds}
             resolutionLimit={analysis.resolution.upper}
             reworkLimit={analysis.rework.upper}
             onSelect={setSelectedId}
