@@ -3,9 +3,11 @@ import {
   analyzeOutliers,
   countBy,
   Defect,
+  durationPoints,
   hasResolvedTime,
   iqrFence,
   matchesSearch,
+  paretoCounts,
   prepareData,
   quantile,
   readTracking,
@@ -16,6 +18,53 @@ import {
 const source = qualityData as Defect[];
 const prepared = prepareData(source);
 const first = source[0];
+
+test("Pareto counts include every report and accumulate shares using report counts", () => {
+  const result = paretoCounts(prepared.rows);
+  expect(result).toHaveLength(22);
+  expect(result[0].name).toBe("Sensor Failure");
+  expect(result[0].count).toBe(677);
+  let runningCount = 0;
+  result.forEach((group, index) => {
+    runningCount += group.count;
+    expect(group.cumulativePercent).toBeCloseTo((runningCount / 8198) * 100);
+    if (index > 0)
+      expect(group.count).toBeLessThanOrEqual(result[index - 1].count);
+  });
+  expect(runningCount).toBe(8198);
+  expect(result[result.length - 1].cumulativePercent).toBe(100);
+  expect(paretoCounts([])).toEqual([]);
+});
+
+test("scatter points retain report IDs and units, omit invalid durations, and keep zero", () => {
+  const rows = [
+    { ...first, id: "zero", resolutionTime: 0, reworkTime: 0 },
+    { ...first, id: "outlier", resolutionTime: 24, reworkTime: 180 },
+    { ...first, id: "missing", reworkTime: null },
+    { ...first, id: "open", resolutionStatus: "Open" },
+    { ...first, id: "negative", resolutionTime: -1 },
+    { ...first, id: "infinite", reworkTime: Infinity },
+  ];
+  const points = durationPoints(rows, new Set(["outlier"]));
+  expect(points.map((point) => point.id)).toEqual(["zero", "outlier"]);
+  expect(points[0]).toMatchObject({
+    resolutionHours: 0,
+    reworkMinutes: 0,
+    unusual: false,
+  });
+  expect(points[1]).toMatchObject({
+    resolutionHours: 24,
+    reworkMinutes: 180,
+    unusual: true,
+  });
+  const analysis = analyzeOutliers(prepared.rows, 1.5);
+  const actual = durationPoints(
+    prepared.rows,
+    new Set(analysis.durationReasons.keys()),
+  );
+  expect(actual).toHaveLength(6947);
+  expect(actual.filter((point) => point.unusual)).toHaveLength(475);
+});
 
 test("keeps every imported report and preserves the original data and labels", () => {
   expect(prepared.rows).toHaveLength(8198);

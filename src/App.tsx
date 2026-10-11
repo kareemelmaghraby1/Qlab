@@ -1,14 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CountChart, DailyChart, ParetoChart, DurationChart } from "./Charts";
 import qualityData from "./data/quality_data_2026.json";
 import {
   analyzeOutliers,
@@ -61,85 +52,6 @@ const number = (value: number | null, digits = 0) =>
 const percent = (count: number, total: number) =>
   total ? ((count / total) * 100).toFixed(1) + "%" : "N/A";
 
-interface ChartRow {
-  name: string;
-  count: number;
-  unusual?: boolean;
-}
-function CountChart({
-  title,
-  items,
-  onSelect,
-  daily = false,
-  hours = false,
-}: {
-  title: string;
-  items: ChartRow[];
-  onSelect?: (name: string) => void;
-  daily?: boolean;
-  hours?: boolean;
-}) {
-  return (
-    <section className="panel">
-      <h3>{title}</h3>
-      <p className="muted">
-        {hours
-          ? "Elapsed hours on completed reports."
-          : "Counts are reported defect rows."}{" "}
-        {onSelect && "Click a bar to inspect its records."} Red marks a
-        data-based outlier.
-      </p>
-      <ResponsiveContainer
-        width="100%"
-        height={daily ? 280 : Math.max(230, items.length * 30)}
-      >
-        <BarChart
-          data={items}
-          layout={daily ? "horizontal" : "vertical"}
-          margin={{ left: 10, right: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-          <XAxis
-            type={daily ? "category" : "number"}
-            dataKey={daily ? "name" : undefined}
-            stroke="#cbd5e1"
-            interval={daily ? 29 : undefined}
-          />
-          <YAxis
-            type={daily ? "number" : "category"}
-            dataKey={daily ? undefined : "name"}
-            width={daily ? 50 : 170}
-            stroke="#cbd5e1"
-            tick={{ fontSize: 11 }}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#0f172a",
-              borderColor: "#475569",
-            }}
-            cursor={{ fill: "#ffffff10" }}
-          />
-          <Bar
-            dataKey="count"
-            name={hours ? "Hours" : "Reports"}
-            onClick={(entry: any) =>
-              onSelect?.(entry.name ?? entry.payload?.name)
-            }
-            style={{ cursor: onSelect ? "pointer" : "default" }}
-          >
-            {items.map((item) => (
-              <Cell
-                key={item.name}
-                fill={item.unusual ? "#f87171" : "#38bdf8"}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </section>
-  );
-}
-
 function Metric({
   label,
   value,
@@ -154,6 +66,34 @@ function Metric({
       <span className="muted">{label}</span>
       <strong>{value}</strong>
       <small>{hint}</small>
+    </div>
+  );
+}
+
+function TrackingSummary({
+  items,
+  activeStatus,
+  onSelect,
+}: {
+  items: TrackingItem[];
+  activeStatus?: string;
+  onSelect: (status: TrackingItem["status"]) => void;
+}) {
+  return (
+    <div className="tracking-summary">
+      {(["Under Review", "Investigating", "Done"] as const).map((status) => (
+        <button
+          key={status}
+          className={"status-card" + (activeStatus === status ? " active" : "")}
+          aria-pressed={activeStatus === status}
+          onClick={() => onSelect(status)}
+        >
+          <span>{status}</span>
+          <strong>
+            {number(items.filter((item) => item.status === status).length)}
+          </strong>
+        </button>
+      ))}
     </div>
   );
 }
@@ -604,26 +544,45 @@ function App() {
               items={countBy(records, "carModel")}
               onSelect={(name) => inspect("carModel", name)}
             />
-            <CountChart
-              title="Reports by motor type"
-              items={countBy(records, "motorType")}
-              onSelect={(name) => inspect("motorType", name)}
-            />
-            <CountChart
-              title="Reports by design package"
-              items={countBy(records, "designPackage")}
-              onSelect={(name) => inspect("designPackage", name)}
-            />
-            <CountChart
+            <DailyChart
               title="Daily reports"
               items={analysis.days.map((day) => ({
                 ...day,
                 unusual: highDays.has(day.name),
               }))}
-              daily
               onSelect={(name) => inspect("date", name)}
             />
           </div>
+          <div className="chart-grid">
+            <CountChart
+              title="Reports by motor type"
+              compact
+              items={countBy(records, "motorType")}
+              onSelect={(name) => inspect("motorType", name)}
+            />
+            <CountChart
+              title="Reports by design package"
+              compact
+              items={countBy(records, "designPackage")}
+              onSelect={(name) => inspect("designPackage", name)}
+            />
+          </div>
+          <section className="panel">
+            <h3>Investigation progress</h3>
+            <p className="muted">
+              Totals for all manually flagged reports. Click a status to open
+              those investigations.
+            </p>
+            <TrackingSummary
+              items={flagged.map((row) => tracking[row.id])}
+              onSelect={(status) => {
+                setTrackingSearch("");
+                setTrackingStatus(status);
+                setSelectedId(null);
+                setTab("tracking");
+              }}
+            />
+          </section>
           <section className="panel">
             <h3>Group comparisons</h3>
             <div className="table-scroll">
@@ -823,12 +782,11 @@ function App() {
               title="All five defect categories"
               items={countBy(records, "defectCategory")}
             />
-            <CountChart
-              title="Defects by frequency"
-              items={countBy(records, "defectName")}
-              onSelect={(name) => inspect("defectName", name)}
-            />
           </div>
+          <ParetoChart
+            rows={records}
+            onSelect={(name) => inspect("defectName", name)}
+          />
           <section className="panel">
             <h2>Recurrence explorer</h2>
             <label>
@@ -1029,14 +987,20 @@ function App() {
               Browse all highlighted reports
             </button>
           </section>
-          <CountChart
+          <DailyChart
             title="Daily volume: unusual days in red"
             items={analysis.days.map((day) => ({
               ...day,
               unusual: highDays.has(day.name),
             }))}
-            daily
             onSelect={(name) => inspect("date", name)}
+          />
+          <DurationChart
+            rows={records}
+            outlierIds={new Set(analysis.durationReasons.keys())}
+            resolutionLimit={analysis.resolution.upper}
+            reworkLimit={analysis.rework.upper}
+            onSelect={setSelectedId}
           />
           <CountChart
             title="The 20 longest completed resolution times"
@@ -1375,6 +1339,18 @@ function App() {
       {tab === "tracking" && (
         <section className="panel">
           <h2>Flagged investigations</h2>
+          <TrackingSummary
+            items={flagged.map((row) => tracking[row.id])}
+            activeStatus={trackingStatus}
+            onSelect={(status) => {
+              setTrackingSearch("");
+              setTrackingStatus(trackingStatus === status ? "" : status);
+            }}
+          />
+          <p className="muted">
+            Status totals include all flagged reports, regardless of the filters
+            below. Click a status to filter; click it again to show all.
+          </p>
           <p>
             Investigation status and owner belong to your follow-up workflow.
             Factory Resolution Status remains unchanged. Flag any report, even

@@ -209,6 +209,33 @@ export function countBy(rows: Defect[], key: keyof Defect) {
     .sort((a, b) => b.count - a.count);
 }
 
+// A Pareto chart adds each defect's count to the counts before it.
+// Use all reports as the denominator, so the last point reaches 100%.
+export function paretoCounts(rows: Defect[]) {
+  let cumulativeCount = 0;
+  return countBy(rows, "defectName").map((group) => {
+    cumulativeCount += group.count;
+    return {
+      ...group,
+      cumulativePercent: (cumulativeCount / rows.length) * 100,
+    };
+  });
+}
+
+// A scatter point needs both measured durations. Keep hours and minutes separate.
+export function durationPoints(rows: Defect[], outlierIds: Set<string>) {
+  return rows
+    .filter((row) => hasResolvedTime(row) && hasReworkTime(row))
+    .map((row) => ({
+      id: row.id,
+      defect: row.defectName,
+      station: row.stationId,
+      resolutionHours: row.resolutionTime!,
+      reworkMinutes: row.reworkTime!,
+      unusual: outlierIds.has(row.id),
+    }));
+}
+
 export function analyzeOutliers(rows: Defect[], factor: number) {
   const resolution = iqrFence(
     rows.filter(hasResolvedTime).map((row) => row.resolutionTime!),

@@ -26,7 +26,8 @@ Read these files in this order:
 2. `src/data/labelCorrections.ts`: an explicit dictionary of reviewed spelling corrections. Station names use the most common export label for each stable Station ID. This is not an official station master. Unknown defect names are left alone; no fuzzy matching runs in the app.
 3. `src/quality.ts`: ordinary functions for cleaning, counting, quartiles, outliers, searching, sorting, and validating saved tracking. They do not render screens or call APIs.
 4. `src/App.tsx`: the screens and controls. React state holds selections and tracking. Charts, tables, and summaries all use the same prepared records.
-5. `src/quality.test.ts`: checks the actual dataset and small examples with known answers, including independently computed Excel/NumPy results.
+5. `src/Charts.tsx`: the reusable Recharts components. Change chart titles, colors, axes, or heights here. The data calculations remain in `quality.ts`.
+6. `src/quality.test.ts`: checks the actual dataset and small examples with known answers, including independently computed Excel/NumPy results.
 
 ## Task 1: display and data quality
 
@@ -34,6 +35,14 @@ Read these files in this order:
 - Defects: the top five corrected defect names, affected VINs, unresolved counts, recorded rework effort, station/shift/category charts, and a recurrence explorer.
 - Data table: search across fields and notes, exact dropdown filters, sortable columns, all 23 source columns, and 50-row pagination. Every report is reachable. Selecting a chart bar opens the corresponding records; selecting a duration bar opens that report's details.
 - The cleaning report shows original and corrected labels and the number of affected rows. Details retain original defect/station names.
+
+### Reading the charts
+
+- **Daily line:** one point for each day in January–June 2026, including days with no reports. Click a point to view that day's records.
+- **Horizontal bars:** compare models, motor types, design packages, stations, shifts, and all five defect categories. Count labels show the values directly. Motor and package panels use less space because they have fewer groups.
+- **Pareto chart:** blue bars show all 22 corrected defect names, largest counts first. The yellow line adds their report counts together and shows the cumulative percentage of all 8,198 reports. The final point is 100%. The dashed 80% line is a guide, not an outlier rule. Scroll horizontally on a small screen; click a bar to inspect its reports.
+- **Duration scatter plot (Outliers):** each dot is one resolved report with valid resolution hours and rework minutes. All 6,947 eligible records are plotted, including 475 duration outliers in red at the default sensitivity. Open or missing-duration reports remain in the data table. Dots can overlap; the checkbox shows only outliers. Click a dot to inspect and flag its report. Dashed lines show the current IQR limits. An association between durations does not prove a cause.
+- **Investigation progress:** the Under Review / Investigating / Done cards count all manually flagged reports. Click a card to open that status in Tracking. Counts update when an investigation changes status or is unflagged; they are separate from factory resolution counts.
 
 Corrections change **112 defect-name cells** (122 labels → 22) and **63 station-name cells** (76 labels → 18). No rows are excluded. Root-cause blanks stay unknown. Resolution/rework blanks on unresolved reports are expected and stay blank.
 
