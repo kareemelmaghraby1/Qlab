@@ -205,6 +205,9 @@ td textarea {
 .outlier-row {
   background: #ef444414;
 }
+.flagged-row {
+  background-color: #164e63;
+}
 .badge {
   display: inline-block;
   padding: 3px 7px;

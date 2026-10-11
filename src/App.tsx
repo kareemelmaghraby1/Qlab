@@ -1069,7 +1069,10 @@ function App() {
                     .filter((row) => analysis.durationReasons.has(row.id))
                     .slice(0, 20)
                     .map((row) => (
-                      <tr key={row.id}>
+                      <tr
+                        key={row.id}
+                        className={tracking[row.id]?.flagged ? "flagged-row" : ""}
+                      >
                         <td>{row.id}</td>
                         <td>{row.defectName}</td>
                         <td>{recordValue(row, "resolutionTime")}</td>
