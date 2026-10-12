@@ -1,10 +1,10 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 body {
   margin: 0;
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #F4F6F8;
+  color: #182230;
   font-family: system-ui, sans-serif;
 }
 * {
@@ -21,7 +21,7 @@ header {
 h1 {
   font-size: 30px;
   font-weight: 700;
-  color: #7dd3fc;
+  color: #0066B1;
 }
 h2 {
   font-size: 22px;
@@ -43,7 +43,7 @@ small {
 }
 .muted,
 small {
-  color: #cbd5e1;
+  color: #526173;
 }
 nav {
   display: flex;
@@ -52,19 +52,20 @@ nav {
   margin-bottom: 24px;
 }
 button {
-  border: 1px solid #475569;
+  border: 1px solid #D9E0E7;
   border-radius: 6px;
-  background: #334155;
-  color: #f1f5f9;
+  background: #E6F2FA;
+  color: #182230;
   padding: 8px 12px;
   cursor: pointer;
 }
 button:hover {
-  background: #475569;
+  background: #D9EAF7;
 }
 button.active {
-  background: #0369a1;
-  border-color: #38bdf8;
+  color: #FFFFFF;
+  background: #0066B1;
+  border-color: #0066B1;
 }
 button:disabled {
   opacity: 0.4;
@@ -72,12 +73,12 @@ button:disabled {
 }
 button:focus-visible,
 summary:focus-visible {
-  outline: 2px solid #7dd3fc;
+  outline: 2px solid #0066B1;
   outline-offset: 3px;
 }
 .panel {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #FFFFFF;
+  border: 1px solid #D9E0E7;
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
@@ -95,7 +96,7 @@ summary:focus-visible {
 }
 .metric strong {
   font-size: 30px;
-  color: #7dd3fc;
+  color: #0066B1;
 }
 .chart-grid {
   display: grid;
@@ -112,8 +113,8 @@ summary:focus-visible {
   min-width: 1050px;
 }
 .scatter-tooltip {
-  background: #0f172a;
-  border: 1px solid #475569;
+  background: #FFFFFF;
+  border: 1px solid #D9E0E7;
   border-radius: 6px;
   padding: 10px;
   max-width: 300px;
@@ -132,7 +133,7 @@ summary:focus-visible {
 }
 .status-card strong {
   font-size: 28px;
-  color: #7dd3fc;
+  color: #0066B1;
 }
 .controls {
   display: flex;
@@ -150,9 +151,9 @@ label {
 input,
 select,
 textarea {
-  background: #0f172a;
-  color: #f1f5f9;
-  border: 1px solid #64748b;
+  background: #FFFFFF;
+  color: #182230;
+  border: 1px solid #8796A6;
   border-radius: 5px;
   padding: 8px;
   font: inherit;
@@ -160,7 +161,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid #0066B1;
 }
 input[type="number"] {
   width: 140px;
@@ -173,10 +174,10 @@ input[type="search"] {
   align-items: center;
 }
 .warning {
-  border-left: 3px solid #fbbf24;
-  background: #fbbf2410;
+  border-left: 3px solid #B77900;
+  background: #FFF4DB;
   padding: 10px 14px;
-  color: #fde68a;
+  color: #805400;
 }
 .table-scroll {
   overflow-x: auto;
@@ -190,40 +191,40 @@ table {
 th,
 td {
   padding: 10px;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #D9E0E7;
   text-align: left;
   vertical-align: top;
 }
 th {
   white-space: nowrap;
-  color: #bae6fd;
+  color: #182230;
 }
 td textarea {
   width: 200px;
   min-height: 64px;
 }
 .outlier-row {
-  background: #ef444414;
+  background: #FDECEC;
 }
 .flagged-row {
-  background-color: #164e63;
+  background-color: #E6F2FA;
 }
 .badge {
   display: inline-block;
   padding: 3px 7px;
   border-radius: 4px;
-  background: #475569;
+  background: #D9E0E7;
   font-size: 11px;
   margin: 2px;
   white-space: nowrap;
 }
 .badge.red {
-  color: #fecaca;
-  background: #7f1d1d;
+  color: #C62828;
+  background: #FDECEC;
 }
 .badge.amber {
-  color: #fef3c7;
-  background: #78350f;
+  color: #805400;
+  background: #FFF4DB;
 }
 .row-actions {
   display: flex;
@@ -231,7 +232,7 @@ td textarea {
 }
 summary {
   cursor: pointer;
-  color: #7dd3fc;
+  color: #0066B1;
   margin: 10px 0;
 }
 details p {
@@ -257,7 +258,7 @@ ul {
   width: 80px;
 }
 .investigation {
-  border-top: 1px solid #475569;
+  border-top: 1px solid #D9E0E7;
   padding: 18px 0;
 }
 .investigation-heading {
@@ -290,20 +291,20 @@ ul {
   height: 100vh;
   width: min(560px, 100%);
   padding: 24px;
-  background: #0f172a;
-  border-left: 2px solid #38bdf8;
+  background: #FFFFFF;
+  border-left: 2px solid #0066B1;
   overflow-y: auto;
-  box-shadow: -10px 0 40px #0008;
+  box-shadow: -10px 0 40px #18223026;
 }
 dl > div {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #D9E0E7;
   padding: 8px 0;
 }
 dt {
-  color: #94a3b8;
+  color: #526173;
 }
 dd {
   overflow-wrap: anywhere;
@@ -340,4 +341,19 @@ dd {
   h1 {
     font-size: 24px;
   }
+}
+
+/* Investigation states keep their colors in both active and inactive cards. */
+.status-card:nth-child(2) strong {
+  color: #B77900;
+}
+.status-card:nth-child(3) strong {
+  color: #237A45;
+}
+.status-card.active {
+  background: #E6F2FA;
+  color: #182230;
+}
+input[type="checkbox"] {
+  accent-color: #0066B1;
 }

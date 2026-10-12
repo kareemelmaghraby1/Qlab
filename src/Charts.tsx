@@ -23,7 +23,7 @@ interface ChartRow {
   count: number;
   unusual?: boolean;
 }
-const tooltipStyle = { backgroundColor: "#0f172a", borderColor: "#475569" };
+const tooltipStyle = { backgroundColor: "#FFFFFF", borderColor: "#D9E0E7", color: "#182230" };
 const displayNumber = (value: unknown) =>
   typeof value === "number"
     ? value.toLocaleString("en-GB", { maximumFractionDigits: 2 })
@@ -65,16 +65,16 @@ export function CountChart({
           layout="vertical"
           margin={{ left: 0, right: 55, bottom: 10 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-          <XAxis type="number" stroke="#cbd5e1" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#D9E0E7" />
+          <XAxis type="number" stroke="#526173" />
           <YAxis
             type="category"
             dataKey="name"
             width={155}
-            stroke="#cbd5e1"
+            stroke="#526173"
             tick={{ fontSize: 11 }}
           />
-          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#ffffff10" }} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#0066B110" }} />
           <Bar
             dataKey="count"
             name={hours ? "Hours" : "Reports"}
@@ -87,13 +87,13 @@ export function CountChart({
             {items.map((item) => (
               <Cell
                 key={item.name}
-                fill={item.unusual ? "#f87171" : "#38bdf8"}
+                fill={item.unusual ? "#C62828" : "#0066B1"}
               />
             ))}
             <LabelList
               dataKey="count"
               position="right"
-              fill="#e2e8f0"
+              fill="#182230"
               fontSize={11}
               formatter={displayNumber}
             />
@@ -125,20 +125,20 @@ export function DailyChart({
           data={items}
           margin={{ left: 0, right: 12, top: 10, bottom: 10 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#D9E0E7" />
           <XAxis
             dataKey="name"
-            stroke="#cbd5e1"
+            stroke="#526173"
             minTickGap={40}
             tickFormatter={(date) => String(date).slice(5)}
           />
-          <YAxis stroke="#cbd5e1" width={42} allowDecimals={false} />
+          <YAxis stroke="#526173" width={42} allowDecimals={false} />
           <Tooltip contentStyle={tooltipStyle} />
           <Line
             type="linear"
             dataKey="count"
             name="Reports"
-            stroke="#38bdf8"
+            stroke="#0066B1"
             strokeWidth={2}
             isAnimationActive={false}
             dot={(props: any) => (
@@ -147,8 +147,8 @@ export function DailyChart({
                 cx={props.cx}
                 cy={props.cy}
                 r={props.payload.unusual ? 5 : 3}
-                fill={props.payload.unusual ? "#f87171" : "#38bdf8"}
-                stroke="#0f172a"
+                fill={props.payload.unusual ? "#C62828" : "#0066B1"}
+                stroke="#FFFFFF"
                 role="button"
                 tabIndex={0}
                 aria-label={"View reports on " + props.payload.name}
@@ -183,7 +183,7 @@ export function ParetoChart({
       <h3>Defect frequency and cumulative share</h3>
       <p className="muted">
         Blue bars: reports for each defect, most common first (left axis).
-        Yellow line: the share covered by those defects together (right axis).
+        Amber line: the share covered by those defects together (right axis).
         Click a bar to inspect its records.
       </p>
       <div className="chart-scroll">
@@ -193,22 +193,22 @@ export function ParetoChart({
               data={items}
               margin={{ left: 10, right: 15, top: 10, bottom: 15 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#D9E0E7" />
               <XAxis
                 dataKey="name"
-                stroke="#cbd5e1"
+                stroke="#526173"
                 angle={-40}
                 textAnchor="end"
                 height={145}
                 interval={0}
                 tick={{ fontSize: 11 }}
               />
-              <YAxis yAxisId="reports" stroke="#7dd3fc" allowDecimals={false} />
+              <YAxis yAxisId="reports" stroke="#0066B1" allowDecimals={false} />
               <YAxis
                 yAxisId="share"
                 orientation="right"
                 domain={[0, 100]}
-                stroke="#fbbf24"
+                stroke="#B77900"
                 tickFormatter={(value) => value + "%"}
               />
               <Tooltip
@@ -223,14 +223,14 @@ export function ParetoChart({
               <ReferenceLine
                 yAxisId="share"
                 y={80}
-                stroke="#94a3b8"
+                stroke="#8796A6"
                 strokeDasharray="4 4"
               />
               <Bar
                 yAxisId="reports"
                 dataKey="count"
                 name="Reports"
-                fill="#38bdf8"
+                fill="#0066B1"
                 isAnimationActive={false}
                 onClick={(entry: any) =>
                   onSelect(entry.name ?? entry.payload?.name)
@@ -242,7 +242,7 @@ export function ParetoChart({
                 type="linear"
                 dataKey="cumulativePercent"
                 name="Cumulative share"
-                stroke="#fbbf24"
+                stroke="#B77900"
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
@@ -380,19 +380,19 @@ export const DurationChart = memo(function DurationChart({
       )}
       <ResponsiveContainer width="100%" height={360}>
         <ScatterChart margin={{ left: 40, right: 15, top: 15, bottom: 25 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#D9E0E7" />
           <XAxis
             type="number"
             dataKey="resolutionHours"
             name="Resolution time"
             unit=" h"
             domain={[0, ranges.resolution]}
-            stroke="#cbd5e1"
+            stroke="#526173"
             label={{
               value: "Resolution time (hours)",
               position: "insideBottom",
               offset: -20,
-              fill: "#cbd5e1",
+              fill: "#526173",
             }}
           />
           <YAxis
@@ -401,27 +401,27 @@ export const DurationChart = memo(function DurationChart({
             name="Hands-on rework"
             domain={[0, ranges.rework]}
             width={45}
-            stroke="#cbd5e1"
+            stroke="#526173"
             label={{
               value: "Rework (minutes)",
               angle: -90,
               position: "left",
               offset: 10,
-              fill: "#cbd5e1",
+              fill: "#526173",
             }}
           />
           <Tooltip content={<DurationTooltip />} />
           {resolutionLimit !== null && (
             <ReferenceLine
               x={resolutionLimit}
-              stroke="#fbbf24"
+              stroke="#B77900"
               strokeDasharray="4 4"
             />
           )}
           {reworkLimit !== null && (
             <ReferenceLine
               y={reworkLimit}
-              stroke="#fbbf24"
+              stroke="#B77900"
               strokeDasharray="4 4"
             />
           )}
@@ -429,7 +429,7 @@ export const DurationChart = memo(function DurationChart({
             <Scatter
               name="Other completed reports"
               data={visible.filter((point) => !point.unusual)}
-              fill="#38bdf8"
+              fill="#0066B1"
               fillOpacity={0.35}
               isAnimationActive={false}
               onClick={openPoint}
@@ -439,7 +439,7 @@ export const DurationChart = memo(function DurationChart({
           <Scatter
             name="Duration outliers"
             data={visible.filter((point) => point.unusual)}
-            fill="#f87171"
+            fill="#C62828"
             isAnimationActive={false}
             onClick={openPoint}
             style={{ cursor: "pointer" }}
